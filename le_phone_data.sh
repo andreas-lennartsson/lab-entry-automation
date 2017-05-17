@@ -144,8 +144,8 @@ result+=$csv_delim
 total_ram=$(adb shell dumpsys meminfo | grep "Total RAM" | grep -o -E '[0-9]+(,[0-9]+)*' | tr -d ',')
 lost_ram=$(adb shell dumpsys meminfo | grep "Lost RAM" | grep -o -E '[0-9]+(,[0-9]+)*' | tr -d ',')
 
-echo $total_ram
-echo $lost_ram
+#echo $total_ram
+#echo $lost_ram
 
 ram=$(((total_ram + lost_ram + 500000)/1000000))
 result+=$ram
