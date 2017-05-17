@@ -15,9 +15,9 @@ result+=$csv_delim
 result+=$csv_delim
 
 #Operator
-operator=$(adb shell getprop gsm.sim.operator.alpha)
+operator=$(echo $(adb shell getprop gsm.sim.operator.alpha)|tr -d '\r')
 if [ -z "$operator" ]; then
-  operator=$(adb shell getprop gsm.operator.alpha)
+  operator=$(echo $(adb shell getprop gsm.operator.alpha)|tr -d '\r')
 fi
 operator=$(echo $operator|tr -d '\r')
 result+=$operator
@@ -48,13 +48,19 @@ result+=$(echo $serial_number|tr -d '\r')
 result+=$csv_delim
 
 #Hardware #
-hardware_rev=$(adb shell getprop ro.lge.hw.revision)
+hardware_rev=$(echo $(adb shell getprop ro.lge.hw.revision)|tr -d '\r')
 if [ -z "$hardware_rev" ]; then
-  hardware_rev=$(adb shell getprop ro.hw.hwrev)
+  hardware_rev=$(echo $(adb shell getprop ro.hw.hwrev)|tr -d '\r')
   if [ -z "$hardware_rev" ]; then
-    hardware_rev=$(adb shell getprop ril.hw_ver)
+    hardware_rev=$(echo $(adb shell getprop ril.hw_ver)|tr -d '\r')
     if [ -z "$hardware_rev" ]; then
-      hardware_rev=$(adb shell getprop ro.hw_id)
+      hardware_rev=$(echo $(adb shell getprop ro.hw_id)|tr -d '\r')
+      if [ -z "$hardware_rev" ]; then
+        hardware_rev=$(echo $(adb shell getprop ro.boot.hw_ver)|tr -d '\r')
+        if [ -z "$hardware_rev" ]; then
+          hardware_rev=$(echo $(adb shell getprop ro.build.hardware_version)|tr -d '\r')
+        fi
+      fi
     fi
   fi
 fi
@@ -68,15 +74,18 @@ result+=$csv_delim
 #adb shell getprop ro.build.version.sdk
 
 #Software Version
-software_rev=$(adb shell getprop ro.lge.hw.revision)
+software_rev=$(echo $(adb shell getprop ro.lge.hw.revision)|tr -d '\r')
 if [ -z "$software_rev" ]; then
-  software_rev=$(adb shell getprop ro.mot.build.version.release)
+  software_rev=$(echo $(adb shell getprop ro.mot.build.version.release)|tr -d '\r')
   if [ -z "$software_rev" ]; then
-    software_rev=$(adb shell getprop ro.build.sw_internal_version)
+    software_rev=$(echo $(adb shell getprop ro.build.sw_internal_version)|tr -d '\r')
     if [ -z "$software_rev" ]; then
-      software_rev=$(adb shell getprop ril.sw_ver)
+      software_rev=$(echo $(adb shell getprop ril.sw_ver)|tr -d '\r')
       if [ -z "$software_rev" ]; then
-        software_rev=$(adb shell getprop ro.aa.romver)
+        software_rev=$(echo $(adb shell getprop ro.aa.romver)|tr -d '\r')
+        if [ -z "$software_rev" ]; then
+          software_rev=$(echo $(adb shell getprop ro.build.display.id)|tr -d '\r')
+        fi
       fi
     fi
   fi
@@ -125,9 +134,9 @@ result+=$csv_delim
 result+=$csv_delim
 
 #STORAGE
-storage=$(adb shell getprop persist.sys.emmc_size)
+storage=$(echo $(adb shell getprop persist.sys.emmc_size)|tr -d '\r')
 if [ -z "$storage" ]; then
-  storage=$(adb shell getprop ro.hw.storage)
+  storage=$(echo $(adb shell getprop ro.hw.storage)|tr -d '\r')
 fi
 result+=$(echo $storage|tr -d '\r')
 result+=$csv_delim
