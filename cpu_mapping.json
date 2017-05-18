@@ -1,0 +1,10 @@
+{
+    "qualcomm_mapping":
+        {
+            "msm8996":"Qualcomm Snapdragon 820",
+            "msm8994":"Qualcomm Snapdragon 810",
+            "msm8937":"Qualcomm Snapdragon 430",
+            "msm8998":"Qualcomm Snapdragon 835",
+            "msm8952":"Qualcomm Snapdragon 617"
+        }
+}

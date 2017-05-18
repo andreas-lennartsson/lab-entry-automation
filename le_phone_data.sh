@@ -1,6 +1,48 @@
 #!/bin/bash
+#
+# Version: 0.0.1
+#
+# Author: Andreas Lennartsson
+#
+
+display_help() {
+    echo "Description:"
+    echo "   Reads specific values over the adb bridge and puts them into a csv file le_data.csv"
+    echo "   The phone must be connected in developer mode (adb supported)"
+    echo "   After running the script the le_data.csv can be imported into the ccea Google Docs spreadsheet" 
+    echo "   by:"
+    echo "      1. File->Import"
+    echo "      2. Upload (le_data.csv)"
+    echo "      3. Under Import actions: Select \"Append rows to current sheet\""
+    echo "      4. Under Separator character: Select \"Custom\" and enter the pipe character: |"
+    echo
+    echo "Usage:"
+    echo "  \$ $0 [option...] {-h}"
+    echo
+    echo "        -h, Displays this help message"
+    echo
+    echo "Note:"
+    echo "   1. Run the script from its own directory (./le_phone_data.sh)"
+    echo "   2. There is a cpu_mapping.json file that needs to be in the same directory as the script file"
+    echo
+    exit 1
+}
+
+case $1 in 
+ -h) display_help ;; 
+  h) display_help ;;
+help) display_help ;;
+esac
 
 echo "Started"
+
+function jsonval {
+    temp=`echo $json | sed 's/\\\\\//\//g' | sed 's/[{}]//g' | awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | sed 's/\"\:\"/\|/g' | sed 's/[\,]/ /g' | sed 's/\"//g' | grep -w $prop`
+    echo ${temp##*|}
+}
+
+out_file_name="le_data.csv"
+cpu_mapping_file_name="cpu_mapping.json"
 csv_delim="|"
 
 header="VID|UID|Order#|Operator|OEM|Model Name|Model#|MDN|Serial #|Hardware #|Android Ver.|Software Ver.|Build #|Fingerprint|IMEI|MEID|Build Type|Logging|Root|Appearance|Storage|CPU|RAM|Screen Size|Front Camera MP|Rear Camera MP|Battery mAh|Battery Wh|Manufacture Date|Tracking|Customer Box (Yes/No)|Accessories (Yes/No)|Tier|New 64 GB SD Card Added to Device (Yes/No)|Date/Time Completed|Authorized Personnel|Google Play Email|Google Play Password"
@@ -142,8 +184,19 @@ result+=$(echo $storage|tr -d '\r')
 result+=$csv_delim
 
 #CPU
-cpu=$(adb shell getprop ro.board.platform)
-result+=$(echo $cpu|tr -d '\r')
+cpu=""
+cpu_read=$(echo $(adb shell getprop ro.board.platform)|tr -d '\r')
+if [ -n "$cpu_read" ]; then
+  #json='curl -s -X GET http://twitter.com/users/show/$1.json'
+  json=$(cat $PWD/$cpu_mapping_file_name)
+  prop=$cpu_read
+  cpu=`jsonval`
+fi
+if [ -n "$cpu" ]; then
+  result+=$cpu
+else
+  result+=$cpu_read
+fi
 result+=$csv_delim
 
 #RAM
@@ -198,6 +251,21 @@ result+=$csv_delim
 result+=$csv_delim
 
 #Tier
+  trie_value=""
+if [ -n "$cpu" ]; then
+  tire_number=$(echo $cpu | grep -o -E '[0-9]+(,[0-9]+)*' | tr -d ',')
+  echo $tire_number
+  if [ -n "$tire_number" ]; then
+    if [ $tire_number -ge 800 ]; then
+      trie_value="Super"
+    elif [ $tire_number -ge 400 ]; then
+      trie_value="Mid"
+    else
+      trie_value="Low"
+    fi
+  fi
+fi
+result+=$trie_value
 result+=$csv_delim
 
 #New 64 GB SD Card Added to Device (Yes/No)
@@ -216,7 +284,6 @@ result+=$csv_delim
 
 echo $result
 
-#echo "$header" > "$PWD/test.csv"
-echo "$result" > "$PWD/test.csv"
+echo "$result" > "$PWD/$out_file_name"
 
 echo "Done"
