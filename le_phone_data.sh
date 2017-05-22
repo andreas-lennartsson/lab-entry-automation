@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-Version="0.0.2"
+Version="0.0.3"
 #
 # Author: Andreas Lennartsson
 #
@@ -389,7 +389,7 @@ get_battery_wh()
 #Manufacture Date
 get_manufacture_date()
 {
-    manuf_date+=$(adb shell getprop ro.manufacturedate)
+    manuf_date=$(adb shell getprop ro.manufacturedate)
     result+=$(echo $manuf_date|tr -d '\r')
     result+=$csv_delim
 }
