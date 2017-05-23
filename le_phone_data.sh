@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-Version="0.0.4"
+Version="0.0.5"
 #
 # Author: Andreas Lennartsson
 #
@@ -42,17 +42,23 @@ display_help() {
     exit 1
 }
 
-function jsonval {
-    temp=`echo $json | sed 's/\\\\\//\//g' | sed 's/[{}]//g' | awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | sed 's/\"\:\"/\|/g' | sed 's/[\,]/ /g' | sed 's/\"//g' | grep -w $prop`
-    echo ${temp##*|}
+function get_cpu_info {
+PYTHON_ARG_A="$1" PYTHON_ARG_B="$2" python - <<END
+import json
+import os
+try:
+    with open('./cpu_mapping.json') as data_file:    
+        data = json.load(data_file)
+        print data[os.environ['PYTHON_ARG_A']] [os.environ['PYTHON_ARG_B']]
+except:
+    print ""
+END
 }
 
 out_file_name="le_data.csv"
 cpu_mapping_file_name="cpu_mapping.json"
 csv_delim="|"
 result=""
-
-header="VID|UID|Order#|Operator|OEM|Model Name|Model#|MDN|Serial #|Hardware #|Android Ver.|Software Ver.|Build #|Fingerprint|IMEI|MEID|Build Type|Logging|Root|Appearance|Storage|CPU|RAM|Screen Size|Front Camera MP|Rear Camera MP|Battery mAh|Battery Wh|Manufacture Date|Tracking|Customer Box (Yes/No)|Accessories (Yes/No)|Tier|New 64 GB SD Card Added to Device (Yes/No)|Date/Time Completed|Authorized Personnel|Google Play Email|Google Play Password"
 
 #VID
 get_vid()
@@ -271,10 +277,8 @@ get_cpu()
     cpu=""
     cpu_read=$(echo $(adb shell getprop ro.board.platform)|tr -d '\r')
     if [ -n "$cpu_read" ]; then
-      #json='curl -s -X GET http://twitter.com/users/show/$1.json'
-      json=$(cat $PWD/$cpu_mapping_file_name)
-      prop=$cpu_read
-      cpu=`jsonval`
+      cpu_read=$(echo $cpu_read | tr '[a-z]' '[A-Z]')
+      cpu=$(get_cpu_info $cpu_read name)
     fi
     if [ -n "$cpu" ]; then
       result+=$cpu
@@ -427,19 +431,7 @@ get_accessories()
 #Tier
 get_tire()
 {
-    trie_value=""
-    if [ -n "$cpu" ]; then
-      tire_number=$(echo $cpu | grep -o -E '[0-9]+(,[0-9]+)*' | tr -d ',')
-      if [ -n "$tire_number" ]; then
-        if [ $tire_number -ge 800 ]; then
-          trie_value="Super"
-        elif [ $tire_number -ge 400 ]; then
-          trie_value="Mid"
-        else
-          trie_value="Low"
-        fi
-      fi
-    fi
+    trie_value=$(get_cpu_info $cpu_read tier)
     result+=$trie_value
     result+=$csv_delim
 }
