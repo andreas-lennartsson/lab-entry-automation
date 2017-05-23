@@ -6,5 +6,9 @@
             "msm8937":"Qualcomm Snapdragon 430",
             "msm8998":"Qualcomm Snapdragon 835",
             "msm8952":"Qualcomm Snapdragon 617"
+        },
+    "samsung_mapping": 
+        {
+            "Model #": "Consumer Name"
         }
 }

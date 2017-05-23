@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-Version="0.0.3"
+Version="0.0.4"
 #
 # Author: Andreas Lennartsson
 #
@@ -111,6 +111,12 @@ get_model_number()
 
 #MDN
 get_mdn()
+{
+    result+=$csv_delim
+}
+
+#MDN
+get_in_dmd()
 {
     result+=$csv_delim
 }
@@ -250,6 +256,12 @@ get_storage()
       storage=$(echo $(adb shell getprop ro.hw.storage)|tr -d '\r')
     fi
     result+=$(echo $storage|tr -d '\r')
+    result+=$csv_delim
+}
+
+#Available Storage
+get_available_storage()
+{
     result+=$csv_delim
 }
 
@@ -482,6 +494,7 @@ do
     get_model_name
     get_model_number
     get_mdn
+    get_in_dmd
     get_serial_number
     get_hardware_number
     get_android_version
@@ -494,9 +507,10 @@ do
     get_logging
     get_root
     get_appearance
-    get_storage
     get_cpu
     get_ram
+    get_storage
+    get_available_storage
     get_screen_size
     get_camera_mp
     get_battery_mAv
