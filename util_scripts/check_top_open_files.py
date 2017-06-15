@@ -3,6 +3,8 @@ import sys
 import os
 import string
 import re
+import sys
+sys.path.append('../../sauce/pyhive')
 from collections import OrderedDict
 
 from hive.adb import AdbClient, AdbDevice
@@ -113,6 +115,8 @@ def get_top_file_handler_usage(device):
         lines = device.shell_command("su -c 'lsof'").decode("utf-8").strip('\n')
         lines = lines.split('\n')
 
+        total_open_files = len(lines)
+
         count = 0
 
         for line in lines:
@@ -141,7 +145,7 @@ def get_top_file_handler_usage(device):
             list_count += 1
             if (list_count > 5):
                 break
-
+        out_line += "|" + str(total_open_files)
         print(out_line)
         out_file.write(out_line + "\n")
         out_file.close()

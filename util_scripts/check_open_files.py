@@ -3,7 +3,7 @@ import sys
 import os
 import string
 import re
-
+sys.path.append('../../sauce/pyhive')
 from hive.adb import AdbClient, AdbDevice
 
 
