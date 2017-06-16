@@ -9,7 +9,7 @@ from subprocess import call
 from collections import OrderedDict
 
 def main():
-    csv_file = os.getcwd() + "/log_data_sh.csv"
+    csv_file = os.getcwd() + "/top_decriptor_proc_sh.csv"
     input_file_name = os.getcwd() + "/open_files_log.txt"
     input_file = open(input_file_name, 'r')
     rec_count = 0
