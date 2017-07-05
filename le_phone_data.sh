@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-Version="0.0.5"
+Version="0.0.6"
 #
 # Author: Andreas Lennartsson
 #
@@ -211,7 +211,13 @@ get_finger_print()
 get_imei()
 {
     imei=$(adb shell getprop gsm.baseband.imei)
-    result+=$(echo $imei|tr -d '\r')
+    imei=$(echo $imei|tr -d '\r')
+    if [ -z "$imei" ]; then
+        imei=$(adb shell service call iphonesubinfo 1 | awk -F "'" '{print $2}' | sed '1 d' | tr -d '.' | awk '{print}' ORS=)
+        imei=$(echo $imei|tr -d '\r')
+    fi
+    
+    result+=$imei
     result+=$csv_delim
 }
 
